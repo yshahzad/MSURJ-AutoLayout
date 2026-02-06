@@ -1,0 +1,238 @@
+@import url("https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&display=swap");
+
+:root {
+  --bg: #480800;
+  --ink: #2a1b16;
+  --muted: #6a4b40;
+  --accent: #480800;
+  --accent-2: #f7e9d6;
+  --card: #fdf2e4;
+  --border: rgba(72, 8, 0, 0.18);
+  --shadow: 0 24px 60px rgba(36, 4, 0, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "EB Garamond", "Garamond", serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(247, 233, 214, 0.22), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(255, 221, 190, 0.15), transparent 55%),
+    linear-gradient(160deg, #3c0600 0%, #480800 60%, #2b0500 100%);
+  z-index: -1;
+}
+
+.card {
+  width: min(980px, 92vw);
+  margin: 48px auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 32px 32px 40px;
+}
+
+.header h1 {
+  font-family: "EB Garamond", "Garamond", serif;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  margin: 10px 0 6px;
+  font-weight: 700;
+}
+
+.sub {
+  color: var(--muted);
+  margin: 0;
+}
+
+
+.error {
+  margin: 18px 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 205, 182, 0.5);
+  border: 1px solid rgba(128, 37, 22, 0.45);
+  color: #5a1f14;
+}
+
+.form {
+  display: grid;
+  gap: 22px;
+  margin-top: 24px;
+}
+
+.group h2 {
+  font-family: "EB Garamond", "Garamond", serif;
+  font-size: 1.1rem;
+  text-transform: none;
+  margin: 0 0 10px;
+  color: var(--accent);
+}
+
+details.group {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(247, 233, 214, 0.55);
+}
+
+details.group summary {
+  cursor: pointer;
+  font-family: "EB Garamond", "Garamond", serif;
+  font-size: 1.05rem;
+  color: var(--accent);
+  list-style: none;
+}
+
+details.group summary::-webkit-details-marker {
+  display: none;
+}
+
+.optional-body {
+  margin-top: 10px;
+}
+
+.dropzone {
+  display: block;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dropzone:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(72, 8, 0, 0.12);
+}
+
+.dropzone input {
+  display: none;
+}
+
+.dropzone-text {
+  display: grid;
+  gap: 6px;
+}
+
+.dropzone-title {
+  font-family: "EB Garamond", "Garamond", serif;
+  font-weight: 600;
+}
+
+.dropzone-sub {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.filename {
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+input {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: "EB Garamond", "Garamond", serif;
+  font-size: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.submit {
+  font-family: "EB Garamond", "Garamond", serif;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: var(--accent);
+  color: var(--accent-2);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(72, 8, 0, 0.25);
+}
+
+.field-title {
+  font-family: "EB Garamond", "Garamond", serif;
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.authors {
+  display: grid;
+  gap: 10px;
+}
+
+.author-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.remove-author,
+.add-author {
+  font-family: "EB Garamond", "Garamond", serif;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--accent);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.remove-author[disabled] {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.add-author {
+  margin-top: 10px;
+  background: rgba(247, 233, 214, 0.7);
+}
+
+.span-2 {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 24px 20px 30px;
+  }
+
+  .author-row {
+    grid-template-columns: 1fr;
+  }
+}
+.author-label {
+  display: block;
+  margin-bottom: 2px;
+}

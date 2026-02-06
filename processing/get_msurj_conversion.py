@@ -95,17 +95,32 @@ def convert_to_msurj(
         return final_tex, bibtex_content
     return final_tex
 
-def create_output_directory(pandoc_tex_path, final_tex, bibtex_content=None):
+def create_output_directory(
+    pandoc_tex_path,
+    final_tex,
+    bibtex_content=None,
+    *,
+    output_root=None,
+    template_dir=None,
+):
     project_root = Path.cwd()
     paper_num = Path(pandoc_tex_path).stem
 
-    output_dir = project_root / "output" / paper_num
+    if output_root is None:
+        output_root = project_root / "output"
+    else:
+        output_root = Path(output_root)
+
+    output_dir = output_root / paper_num
     output_dir.mkdir(parents=True, exist_ok=True)
 
     output_path = output_dir / f"{paper_num}.tex"
     Path(output_path).write_text(final_tex)
 
-    template_dir = project_root / "output" / "template_dir"
+    if template_dir is None:
+        template_dir = project_root / "output" / "template_dir"
+    else:
+        template_dir = Path(template_dir)
     shutil.copytree(
         template_dir,
         output_dir,

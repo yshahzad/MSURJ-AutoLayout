@@ -2,9 +2,12 @@ from pathlib import Path
 import subprocess
 
 
-def create_tex_ir(input_docx):
+def create_tex_ir(input_docx, *, ir_tex_dir=None):
     project_root = Path.cwd()
-    ir_tex_dir = project_root / "data" / "ir_tex"
+    if ir_tex_dir is None:
+        ir_tex_dir = project_root / "data" / "ir_tex"
+    else:
+        ir_tex_dir = Path(ir_tex_dir)
     paper_num = input_docx.stem
 
     output_dir = ir_tex_dir / paper_num
@@ -26,3 +29,4 @@ def create_tex_ir(input_docx):
     (output_dir / "media").rename(output_dir / "Figures")
 
     print(f"Files created in:\n{output_dir.resolve()}")
+    return output_dir

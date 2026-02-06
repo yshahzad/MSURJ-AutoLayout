@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MSURJ AutoLayout</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <div class="bg"></div>
+    <main class="card">
+      <header class="header">
+        <h1>MSURJ AutoLayout</h1>
+        <p class="sub">
+          Upload a pre-processed Word document and fill in the metadata form. This tool creates an Overleaf-ready
+          folder of the LaTeX-formatted manuscript.
+        </p>
+      </header>
+
+      {% if error %}
+      <div class="error">{{ error }}</div>
+      {% endif %}
+
+      <form class="form" action="/convert" method="post" enctype="multipart/form-data">
+        <section class="group">
+          <h2>Manuscript</h2>
+          <label class="dropzone" for="manuscript">
+            <input id="manuscript" name="manuscript" type="file" accept=".docx" />
+            <div class="dropzone-text">
+              <span class="dropzone-title">Drag and Drop a .docx File</span>
+              <span class="dropzone-sub">or Click to Browse</span>
+              <span class="filename" id="filename">No File Selected</span>
+            </div>
+          </label>
+        </section>
+
+        <section class="group">
+          <h2>Metadata</h2>
+          <div class="grid">
+            <div class="span-2">
+              <div class="field-title">Authors</div>
+              <div class="authors" id="authors">
+                <div class="author-row">
+                  <label>
+                    <span class="author-label">Author 1</span>
+                    <input name="authors" type="text" placeholder="Last, First" required />
+                  </label>
+                  <label>
+                    <span class="author-label">Affiliation 1</span>
+                    <input
+                      name="author_affiliations"
+                      type="text"
+                      placeholder="Department, Institution"
+                      required
+                    />
+                  </label>
+                  <button type="button" class="remove-author" aria-label="Remove Author">Remove</button>
+                </div>
+              </div>
+              <button type="button" id="add-author" class="add-author">Add Author</button>
+            </div>
+            <label>
+              Title
+              <input name="title" type="text" required />
+            </label>
+            <label>
+              Submitted Date
+              <input name="submitted_date" type="text" placeholder="MM/DD/YYYY" required />
+            </label>
+            <label>
+              Article Type
+              <input name="article_type" type="text" placeholder="Research Article" required />
+            </label>
+            <label>
+              Keywords
+              <input name="keywords" type="text" required />
+            </label>
+            <label>
+              Corresponding Author Email
+              <input name="email" type="email" required />
+            </label>
+          </div>
+        </section>
+
+        <details class="group optional">
+          <summary>Optional fields</summary>
+          <div class="optional-body">
+            <label>
+              AnyStyle CLI Path
+              <input
+                name="anystyle_cmd"
+                type="text"
+                placeholder="anystyle"
+              />
+            </label>
+          </div>
+        </details>
+
+        <button type="submit" class="submit">Build ZIP</button>
+      </form>
+    </main>
+
+    <script>
+      const input = document.getElementById("manuscript");
+      const filename = document.getElementById("filename");
+      const authors = document.getElementById("authors");
+      const addAuthor = document.getElementById("add-author");
+
+      input.addEventListener("change", () => {
+        const file = input.files[0];
+        filename.textContent = file ? file.name : "No File Selected";
+      });
+
+      function refreshAuthors() {
+        const rows = authors.querySelectorAll(".author-row");
+        rows.forEach((row, index) => {
+          const labels = row.querySelectorAll(".author-label");
+          if (labels[0]) labels[0].textContent = `Author ${index + 1}`;
+          if (labels[1]) labels[1].textContent = `Affiliation ${index + 1}`;
+          const remove = row.querySelector(".remove-author");
+          const disabled = rows.length === 1;
+          remove.disabled = disabled;
+          remove.style.visibility = disabled ? "hidden" : "visible";
+        });
+      }
+
+      function bindRemove(button) {
+        button.addEventListener("click", () => {
+          const row = button.closest(".author-row");
+          if (row) {
+            row.remove();
+            refreshAuthors();
+          }
+        });
+      }
+
+      bindRemove(authors.querySelector(".remove-author"));
+      refreshAuthors();
+
+      addAuthor.addEventListener("click", () => {
+        const row = document.createElement("div");
+        row.className = "author-row";
+        row.innerHTML = `
+          <label>
+            <span class="author-label">Author</span>
+            <input name="authors" type="text" placeholder="Last, First" required />
+          </label>
+          <label>
+            <span class="author-label">Affiliation</span>
+            <input
+              name="author_affiliations"
+              type="text"
+              placeholder="Department, Institution"
+              required
+            />
+          </label>
+          <button type="button" class="remove-author" aria-label="Remove Author">Remove</button>
+        `;
+        authors.appendChild(row);
+        bindRemove(row.querySelector(".remove-author"));
+        refreshAuthors();
+      });
+    </script>
+  </body>
+</html>
