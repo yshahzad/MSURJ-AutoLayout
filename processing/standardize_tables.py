@@ -73,17 +73,51 @@ def _strip_longtable_repeats(content: str) -> str:
     return content.strip()
 
 
-def _convert_longtable_block(colspec: str, content: str) -> str:
+def _estimate_columns(colspec: str) -> int:
+    colspec = re.sub(r">\{[^}]*\}", "", colspec)
+    colspec = re.sub(r"<\{[^}]*\}", "", colspec)
+    colspec = re.sub(r"@\{[^}]*\}", "", colspec)
+
+    count = 0
+    i = 0
+    while i < len(colspec):
+        ch = colspec[i]
+        if ch in "lcrX":
+            count += 1
+            i += 1
+            continue
+        if ch in "pmb":
+            i += 1
+            if i < len(colspec) and colspec[i] == "{":
+                try:
+                    _, i = _consume_brace(colspec, i)
+                except ValueError:
+                    continue
+                count += 1
+                continue
+            continue
+        if ch == "S":
+            count += 1
+            i += 1
+            continue
+        i += 1
+    return count
+
+
+def _convert_longtable_block(colspec: str, content: str, *, wide: bool) -> str:
     caption, content = _extract_caption(content)
     content = _strip_longtable_repeats(content)
 
-    lines = [r"\begin{table}[htbp]", r"\centering", r"\small"]
+    table_env = "table*" if wide else "table"
+    width = r"\textwidth" if wide else r"\columnwidth"
+    lines = [rf"\begin{{{table_env}}}[htbp]", r"\centering", r"\small"]
+    lines.append(rf"\captionsetup{{width={width}}}")
     if caption:
         lines.append(rf"\caption{{{caption}}}")
-    lines.append(rf"\begin{{tabularx}}{{\columnwidth}}{{{colspec}}}")
+    lines.append(rf"\begin{{tabularx}}{{{width}}}{{{colspec}}}")
     lines.append(content)
     lines.append(r"\end{tabularx}")
-    lines.append(r"\end{table}")
+    lines.append(rf"\end{{{table_env}}}")
     return "\n".join(lines)
 
 
@@ -133,7 +167,8 @@ def convert_longtables_to_tabularx(tex_string: str) -> str:
             break
 
         content = tex_string[j:end]
-        out.append(_convert_longtable_block(colspec, content))
+        wide = _estimate_columns(colspec) >= 5
+        out.append(_convert_longtable_block(colspec, content, wide=wide))
         idx = end + len(LONGTABLE_END)
 
     return "".join(out)

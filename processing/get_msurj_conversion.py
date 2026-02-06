@@ -6,14 +6,96 @@ from processing.citations import apply_citation_pipeline, replace_superscript_ci
 from processing.standardize_tables import standardize_tables
 
 
-def standardize_figs(tex_string):
-    new_tex_string = re.sub(
+def _dim_to_inches(value: str, unit: str) -> float | None:
+    try:
+        num = float(value)
+    except ValueError:
+        return None
+
+    unit = unit.lower()
+    if unit == "in":
+        return num
+    if unit == "cm":
+        return num / 2.54
+    if unit == "mm":
+        return num / 25.4
+    if unit == "pt":
+        return num / 72.27
+    if unit == "bp":
+        return num / 72.0
+    return None
+
+
+def _is_wide_figure(block: str, *, width_threshold_in: float, height_threshold_in: float) -> bool:
+    include_re = re.compile(r"\\includegraphics(?:\[(?P<opts>[^\]]*)\])?\{[^}]+\}")
+    width_re = re.compile(r"width\s*=\s*([0-9.]+)\s*(in|cm|mm|pt|bp)")
+    height_re = re.compile(r"height\s*=\s*([0-9.]+)\s*(in|cm|mm|pt|bp)")
+
+    for match in include_re.finditer(block):
+        opts = match.group("opts") or ""
+        width_match = width_re.search(opts)
+        if width_match:
+            w = _dim_to_inches(width_match.group(1), width_match.group(2))
+            if w is not None and w >= width_threshold_in:
+                return True
+
+        height_match = height_re.search(opts)
+        if height_match:
+            h = _dim_to_inches(height_match.group(1), height_match.group(2))
+            if h is not None and h >= height_threshold_in:
+                return True
+
+    return False
+
+
+def _set_includegraphics_width(text: str, width: str) -> str:
+    def repl_opts(_: re.Match) -> str:
+        return f"\\includegraphics[width={width}]"
+
+    def repl_no_opts(_: re.Match) -> str:
+        return f"\\includegraphics[width={width}]{{"
+
+    text = re.sub(
         r"\\includegraphics\[[^\]]*\]",
-        r"\\includegraphics[width=\\columnwidth]",
-        tex_string
+        repl_opts,
+        text,
+    )
+    text = re.sub(
+        r"\\includegraphics(?!\[)\{",
+        repl_no_opts,
+        text,
+    )
+    return text
+
+
+def standardize_figs(tex_string):
+    figure_re = re.compile(
+        r"(\\begin{figure\*?}(?:\[[^\]]*\])?)(.*?)(\\end{figure\*?})",
+        re.DOTALL,
     )
 
-    return new_tex_string
+    out = []
+    last = 0
+    for match in figure_re.finditer(tex_string):
+        out.append(_set_includegraphics_width(tex_string[last:match.start()], r"\\columnwidth"))
+
+        begin, body, end = match.groups()
+        is_star = begin.startswith(r"\begin{figure*}")
+        wide = is_star or _is_wide_figure(body, width_threshold_in=4.5, height_threshold_in=4.5)
+
+        if wide and not is_star:
+            begin = begin.replace(r"\begin{figure}", r"\begin{figure*}", 1)
+            end = end.replace(r"\end{figure}", r"\end{figure*}", 1)
+
+        target_width = r"\textwidth" if wide else r"\columnwidth"
+        if r"\captionsetup" not in body:
+            body = f"\\captionsetup{{width={target_width}}}\n" + body
+        body = _set_includegraphics_width(body, target_width)
+        out.append(f"{begin}{body}{end}")
+        last = match.end()
+
+    out.append(_set_includegraphics_width(tex_string[last:], r"\\columnwidth"))
+    return "".join(out)
 
 
 def convert_to_msurj(
