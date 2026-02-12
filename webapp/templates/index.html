@@ -1,20 +1,26 @@
 <!doctype html>
+<link rel="stylesheet" href="../static/styles.css"/>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MSURJ AutoLayout</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/prototype/1.7.3.0/prototype.js"></script>
+    <script src="../script.js"></script>
   </head>
   <body>
+    <div id="topnav"></div>
     <div class="bg"></div>
-    <main class="card">
+    <div class="card">
       <header class="header">
         <div class="title-row">
           <h1>MSURJ AutoLayout</h1>
           <img
             class="title-logo"
-            src="{{ url_for('static', filename='msurj_logo.png') }}"
+            src="../static/msurj_logo.png"
             alt="MSURJ Logo"
           />
         </div>
@@ -23,10 +29,6 @@
           folder of the LaTeX-formatted manuscript.
         </p>
       </header>
-
-      {% if error %}
-      <div class="error">{{ error }}</div>
-      {% endif %}
 
       <form class="form" action="/convert" method="post" enctype="multipart/form-data">
         <section class="group">
@@ -61,10 +63,10 @@
                       required
                     />
                   </label>
-                  <button type="button" class="remove-author" aria-label="Remove Author">Remove</button>
                 </div>
               </div>
               <button type="button" id="add-author" class="add-author">Add Author</button>
+              <button type="button" class="remove-author" aria-label="Remove Author">Remove All</button>
             </div>
             <label>
               Title
@@ -105,74 +107,7 @@
 
         <button type="submit" class="submit">Build ZIP</button>
       </form>
-    </main>
-
-    <footer class="banner">
-      <p>
-        Having issues? <a href="https://github.com/yshahzad/MSURJ-AutoLayout/issues">Let me know here.</a>
-      </p>
-    </footer>
-
-    <script>
-      const input = document.getElementById("manuscript");
-      const filename = document.getElementById("filename");
-      const authors = document.getElementById("authors");
-      const addAuthor = document.getElementById("add-author");
-
-      input.addEventListener("change", () => {
-        const file = input.files[0];
-        filename.textContent = file ? file.name : "No File Selected";
-      });
-
-      function refreshAuthors() {
-        const rows = authors.querySelectorAll(".author-row");
-        rows.forEach((row, index) => {
-          const labels = row.querySelectorAll(".author-label");
-          if (labels[0]) labels[0].textContent = `Author ${index + 1}`;
-          if (labels[1]) labels[1].textContent = `Affiliation ${index + 1}`;
-          const remove = row.querySelector(".remove-author");
-          const disabled = rows.length === 1;
-          remove.disabled = disabled;
-          remove.style.visibility = disabled ? "hidden" : "visible";
-        });
-      }
-
-      function bindRemove(button) {
-        button.addEventListener("click", () => {
-          const row = button.closest(".author-row");
-          if (row) {
-            row.remove();
-            refreshAuthors();
-          }
-        });
-      }
-
-      bindRemove(authors.querySelector(".remove-author"));
-      refreshAuthors();
-
-      addAuthor.addEventListener("click", () => {
-        const row = document.createElement("div");
-        row.className = "author-row";
-        row.innerHTML = `
-          <label>
-            <span class="author-label">Author</span>
-            <input name="authors" type="text" placeholder="Last, First" required />
-          </label>
-          <label>
-            <span class="author-label">Affiliation</span>
-            <input
-              name="author_affiliations"
-              type="text"
-              placeholder="Department, Institution"
-              required
-            />
-          </label>
-          <button type="button" class="remove-author" aria-label="Remove Author">Remove</button>
-        `;
-        authors.appendChild(row);
-        bindRemove(row.querySelector(".remove-author"));
-        refreshAuthors();
-      });
-    </script>
+    </div>
+  <div id="footer"></div>
   </body>
 </html>
