@@ -194,9 +194,9 @@ input {
   box-shadow: 0 8px 18px rgba(72, 8, 0, 0.25);
 }
 
-.banner {
+#footer, #topnav {
   width: min(980px, 92vw);
-  margin: 18px auto 40px;
+  margin: 18px auto;
   padding: 14px 18px;
   display: flex;
   align-items: center;
@@ -206,12 +206,12 @@ input {
   border-radius: 12px;
 }
 
-.banner p {
+#footer p, #topnav p {
   margin: 0;
   color: var(--ink);
 }
 
-.banner a {
+a {
   color: var(--accent);
   text-decoration: underline;
 }
